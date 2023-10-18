@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_ble"
+        android:icon="@drawable/ble_icon"
+        android:title="BLE" />
+    <item
+        android:id="@+id/menu_counter"
+        android:icon="@drawable/counter"
+        android:title="Counter" />
+    <item
+        android:id="@+id/menu_others"
+        android:icon="@drawable/secondary_screen"
+        android:title="Others" />
+
+
+</menu>
