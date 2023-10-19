@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.testpoc.models.LoginCodes;
+import com.example.testpoc.utils.LoginCodes;
 import com.orhanobut.logger.Logger;
 
 public class LoginActivityViewModel extends AndroidViewModel {

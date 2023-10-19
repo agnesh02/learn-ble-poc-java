@@ -25,6 +25,7 @@ public class HomeActivity extends AppCompatActivity {
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        changeScreen(new BleFragment());
         binding.bottomNavigation.setSelectedItemId(R.id.menu_ble);
 
         binding.bottomNavigation.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {

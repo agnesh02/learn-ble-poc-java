@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.testpoc.databinding.ActivityLoginBinding;
 import com.example.testpoc.models.Common;
-import com.example.testpoc.models.LoginCodes;
+import com.example.testpoc.utils.LoginCodes;
 import com.example.testpoc.viewmodels.LoginActivityViewModel;
 
 public class LoginActivity extends AppCompatActivity {

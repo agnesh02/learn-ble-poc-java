@@ -1,4 +1,4 @@
-package com.example.testpoc.models;
+package com.example.testpoc.utils;
 
 public enum LoginCodes {
 
