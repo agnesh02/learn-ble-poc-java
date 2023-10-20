@@ -1,12 +1,12 @@
-package com.example.testpoc.views;
+package com.example.testpoc.views.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,12 +28,13 @@ public class BleFragment extends Fragment {
     List<Device> discoveredDevices;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         binding = FragmentBleBinding.inflate(getLayoutInflater());
         viewModel = new ViewModelProvider(requireActivity()).get(HomeActivityViewModel.class);
 
+        // Setting up custom recycler view
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL);
         binding.bleRecyclerView.addItemDecoration(itemDecoration);
@@ -45,48 +46,33 @@ public class BleFragment extends Fragment {
         binding.bleRecyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
 
-
         viewModel.initializeBle();
 
-        viewModel.bleErrorMessage.observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String message) {
-                if (!message.equals("")) {
-                    Common.getInstance().showMessage(requireActivity(), message);
-                }
+        viewModel.bleFeedbackMessage.observe(getViewLifecycleOwner(), message -> {
+            if (!message.equals("")) {
+                Common.getInstance().showSnackMessage(getView(), message, true);
             }
         });
 
-        viewModel.isScanningForDevices.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean isScanning) {
-                if (isScanning) {
-                    binding.btnBleScan.setText("Scanning...");
-                    viewModel.listOfDiscoveredDevices.postValue(new ArrayList());
-                    binding.progressBarScan.setVisibility(View.VISIBLE);
-                    binding.btnBleScan.setEnabled(false);
-                } else {
-                    binding.btnBleScan.setText("Start scan");
-                    binding.progressBarScan.setVisibility(View.INVISIBLE);
-                    binding.btnBleScan.setEnabled(true);
-                }
+        viewModel.isScanningForDevices.observe(getViewLifecycleOwner(), isScanning -> {
+            if (isScanning) {
+                binding.btnBleScan.setText("Scanning...");
+                viewModel.listOfDiscoveredDevices.postValue(new ArrayList<>());
+                binding.progressBarScan.setVisibility(View.VISIBLE);
+                binding.btnBleScan.setEnabled(false);
+            } else {
+                binding.btnBleScan.setText("Start scan");
+                binding.progressBarScan.setVisibility(View.INVISIBLE);
+                binding.btnBleScan.setEnabled(true);
             }
         });
 
-        binding.btnBleScan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                viewModel.requestPermissions(requireActivity());
-            }
-        });
+        binding.btnBleScan.setOnClickListener(view -> viewModel.requestPermissions(requireActivity()));
 
-        viewModel.listOfDiscoveredDevices.observe(getViewLifecycleOwner(), new Observer<List<Device>>() {
-            @Override
-            public void onChanged(List<Device> listOfBleDevices) {
-                discoveredDevices.clear();
-                discoveredDevices.addAll(listOfBleDevices);
-                adapter.notifyDataSetChanged();
-            }
+        viewModel.listOfDiscoveredDevices.observe(getViewLifecycleOwner(), listOfBleDevices -> {
+            discoveredDevices.clear();
+            discoveredDevices.addAll(listOfBleDevices);
+            adapter.notifyDataSetChanged();
         });
 
 

@@ -13,7 +13,8 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.clj.fastble.data.BleDevice;
 import com.example.testpoc.models.BLE;
-import com.example.testpoc.utils.BleConnectionStatus;
+import com.example.testpoc.utils.enums.BleConnectionStatus;
+import com.example.testpoc.utils.enums.BleFeedbacks;
 import com.example.testpoc.utils.Device;
 import com.orhanobut.logger.Logger;
 import com.permissionx.guolindev.PermissionX;
@@ -23,27 +24,52 @@ import java.util.List;
 
 public class HomeActivityViewModel extends AndroidViewModel {
 
-    BLE bleObj = new BLE();
+    BLE bleObj = BLE.getInstance();
 
     public HomeActivityViewModel(@NonNull Application application) {
         super(application);
     }
 
-    public MutableLiveData<Integer> counter = new MutableLiveData(0);
+    /**
+     * Live data holding the counter value for counter screen - used with data binding
+     */
+    public MutableLiveData<Integer> counter = new MutableLiveData<>(0);
 
-    public MutableLiveData<Boolean> isScanningForDevices = new MutableLiveData(false);
-    public MutableLiveData<List<Device>> listOfDiscoveredDevices = new MutableLiveData(new ArrayList());
+    /**
+     * Live data which represents if the app is currently scanning for BLE or not
+     */
+    public MutableLiveData<Boolean> isScanningForDevices = new MutableLiveData<>(false);
 
-    public MutableLiveData<String> bleErrorMessage = new MutableLiveData<>("");
+    /**
+     * Live data which holds the list of discovered BLE devices upon scanning
+     */
+    public MutableLiveData<List<Device>> listOfDiscoveredDevices = new MutableLiveData<>(new ArrayList<>());
 
+    /**
+     * Live data which holds the feedback messages of BLE actions. This can hold errors as well as success
+     */
+    public MutableLiveData<String> bleFeedbackMessage = new MutableLiveData<>("");
+
+    /**
+     * Method to increment the counter value and update it
+     */
     public void incrementCounter() {
         counter.postValue(counter.getValue() + 1);
     }
 
+    /**
+     * Method to decrement the counter value and update it
+     */
     public void decrementCounter() {
         counter.postValue(counter.getValue() - 1);
     }
 
+    /**
+     * Method to request the necessary permissions for the app
+     * Starts BLE scan every checks are ok
+     *
+     * @param activity {@link Activity} Used to pass to initialize {@link PermissionX}
+     */
     public void requestPermissions(Activity activity) {
         PermissionX.init((FragmentActivity) activity)
                 .permissions(
@@ -70,46 +96,59 @@ public class HomeActivityViewModel extends AndroidViewModel {
                 })
                 .request((allGranted, grantedList, deniedList) -> {
                     if (allGranted) {
-                        Logger.d("All permissions are granted. Proceeding to checking BLE state");
+                        Logger.d("Agnesh | BLE Fragment | HomeActivityViewModel -> All permissions are granted. Proceeding to checking BLE state");
                         checkBleState();
                     } else {
-                        Logger.d("These permissions are denied: " + deniedList);
-                        bleErrorMessage.postValue("Insufficient permissions");
+                        Logger.d("Agnesh | BLE Fragment | HomeActivityViewModel -> These permissions are denied: " + deniedList);
+                        bleFeedbackMessage.postValue(BleFeedbacks.INSUFFICIENT_PERMISSIONS.getBleFeedbackMessage());
                     }
                 });
     }
 
+    /**
+     * Method to check the current bluetooth hardware state of the mobile device
+     */
     private void checkBleState() {
         boolean result = bleObj.bleManager.isBlueEnable();
         if (!result) {
-            bleErrorMessage.postValue("BLE is turned off");
+            bleFeedbackMessage.postValue(BleFeedbacks.BLE_OFF.getBleFeedbackMessage());
         } else {
-            Logger.d("Ble state OK. Proceeding to check location state...");
+            Logger.d("Agnesh | BLE Fragment | HomeActivityViewModel -> Ble state OK. Proceeding to check location state...");
             checkLocationState();
         }
     }
 
+    /**
+     * Method to check the current location hardware state of the mobile device
+     * Starts BLE scan if location is on
+     */
     private void checkLocationState() {
         LocationManager locationManager = (LocationManager) getApplication().getSystemService(Context.LOCATION_SERVICE);
         boolean result = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         if (!result) {
-            bleErrorMessage.postValue("Location not turned on");
+            bleFeedbackMessage.postValue(BleFeedbacks.LOCATION_OFF.getBleFeedbackMessage());
         } else {
             Logger.d("Agnesh | BLE Fragment | HomeActivityViewModel -> Permissions and hardware ok...so scanning...");
             startScanning();
         }
     }
 
+    /**
+     * Method to initialize BLE
+     */
     public void initializeBle() {
         bleObj.initBle(getApplication());
     }
 
+    /**
+     * Method to start BLE scan process
+     */
     public void startScanning() {
         isScanningForDevices.postValue(true);
         bleObj.AttemptBleScan().thenAccept(discoveredDevices -> {
             List<Device> deviceList = new ArrayList<>();
             for (BleDevice device : discoveredDevices) {
-                Device data = new Device(device, device.getMac(), device.getName(), new MutableLiveData(BleConnectionStatus.DISCONNECTED), device.getRssi(), device.getScanRecord());
+                Device data = new Device(device, device.getMac(), new MutableLiveData<>(device.getName()), new MutableLiveData<>(BleConnectionStatus.DISCONNECTED), device.getRssi(), device.getScanRecord());
                 deviceList.add(data);
             }
             listOfDiscoveredDevices.postValue(deviceList);
@@ -121,16 +160,41 @@ public class HomeActivityViewModel extends AndroidViewModel {
         });
     }
 
+    /**
+     * Method to connect with a BLE device
+     *
+     * @param bleDevice {@link Device} Used to pass to a method inside {@link BLE}
+     */
     public void connectDevice(Device bleDevice) {
-        bleObj.connectBleDevice(bleDevice, bleErrorMessage);
+        bleObj.connectBleDevice(bleDevice, bleFeedbackMessage);
     }
 
+    /**
+     * Method to terminate connection with a BLE device
+     *
+     * @param bleDevice {@link Device} Used to pass to a method inside {@link BLE}
+     */
     public void disconnectDevice(Device bleDevice) {
         bleObj.disconnectBleDevice(bleDevice.getBleDevice());
     }
 
+    /**
+     * Method to read data from a BLE device
+     *
+     * @param bleDevice {@link BleDevice} Used to pass to a method inside {@link BLE}
+     */
     public void readData(BleDevice bleDevice) {
-        bleObj.readPressureData(bleDevice, bleErrorMessage);
+        bleObj.readPressureData(bleDevice, bleFeedbackMessage);
+    }
+
+    /**
+     * Method to write data to a BLE device
+     *
+     * @param device        {@link Device} Used to pass to a method inside {@link BLE}
+     * @param newDeviceName {@link String} Holds the desired new device name which should be written
+     */
+    public void writeData(Device device, String newDeviceName) {
+        bleObj.writeDeviceName(device, newDeviceName, bleFeedbackMessage);
     }
 
 }

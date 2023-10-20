@@ -1,4 +1,4 @@
-package com.example.testpoc.utils;
+package com.example.testpoc.utils.enums;
 
 public enum BleConnectionStatus {
 

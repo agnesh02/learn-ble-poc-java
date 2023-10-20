@@ -1,4 +1,4 @@
-package com.example.testpoc.views;
+package com.example.testpoc.views.activities;
 
 import android.os.Bundle;
 
@@ -18,6 +18,7 @@ public class SampleActivity extends AppCompatActivity {
         binding = ActivitySampleBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // Fetching the passed data from predecessor
         Bundle extraItems = getIntent().getExtras();
         if (extraItems != null) {
             fetchedData = extraItems.getString("DATA");

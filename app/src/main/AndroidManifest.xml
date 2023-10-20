@@ -22,13 +22,13 @@
         android:theme="@style/Theme.TestPoc"
         tools:targetApi="31">
         <activity
-            android:name=".views.SampleActivity"
+            android:name=".views.activities.SampleActivity"
             android:exported="false" />
         <activity
-            android:name=".views.HomeActivity"
+            android:name=".views.activities.HomeActivity"
             android:exported="false" />
         <activity
-            android:name=".views.LoginActivity"
+            android:name=".views.activities.LoginActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

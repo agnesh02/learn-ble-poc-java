@@ -1,4 +1,4 @@
-package com.example.testpoc.utils;
+package com.example.testpoc.utils.enums;
 
 public enum LoginCodes {
 
@@ -7,11 +7,12 @@ public enum LoginCodes {
     PASSWORD_SHORT("Password should have a minimum of 6 characters");
 
     private final String value;
-    LoginCodes(String value){
+
+    LoginCodes(String value) {
         this.value = value;
     }
 
-    public  String getValue(){
+    public String getValue() {
         return value;
     }
 

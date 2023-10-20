@@ -3,11 +3,12 @@ package com.example.testpoc.utils;
 import androidx.lifecycle.MutableLiveData;
 
 import com.clj.fastble.data.BleDevice;
+import com.example.testpoc.utils.enums.BleConnectionStatus;
 
 public class Device {
     BleDevice bleDevice;
     String macAddress;
-    String deviceName;
+    MutableLiveData<String> deviceName;
     MutableLiveData<BleConnectionStatus> isConnected;
     int rssi;
     byte[] manufacturerData;
@@ -15,7 +16,7 @@ public class Device {
     public Device() {
     }
 
-    public Device(BleDevice bleDevice, String macAddress, String deviceName, MutableLiveData<BleConnectionStatus> isConnected, int rssi, byte[] manufacturerData) {
+    public Device(BleDevice bleDevice, String macAddress, MutableLiveData<String> deviceName, MutableLiveData<BleConnectionStatus> isConnected, int rssi, byte[] manufacturerData) {
         this.bleDevice = bleDevice;
         this.macAddress = macAddress;
         this.deviceName = deviceName;
@@ -37,7 +38,7 @@ public class Device {
     }
 
     public void setDeviceName(String deviceName) {
-        this.deviceName = deviceName;
+        this.deviceName.postValue(deviceName);
     }
 
     public void setIsConnected(BleConnectionStatus isConnected) {
@@ -56,7 +57,7 @@ public class Device {
         return macAddress;
     }
 
-    public String getDeviceName() {
+    public MutableLiveData<String> getDeviceName() {
         return deviceName;
     }
 
