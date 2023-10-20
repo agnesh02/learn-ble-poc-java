@@ -43,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
                     Intent i = new Intent(LoginActivity.this, HomeActivity.class);
                     startActivity(i);
                     binding.progressBar.setVisibility(View.INVISIBLE);
-                }, 2000);
+                }, 1300);
             } else if (!s.equals("")) {
                 obj.showSnackMessage(getCurrentFocus(), s, false);
                 binding.progressBar.setVisibility(View.INVISIBLE);
