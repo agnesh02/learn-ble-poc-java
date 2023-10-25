@@ -7,16 +7,17 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleGattCallback;
+import com.clj.fastble.callback.BleNotifyCallback;
 import com.clj.fastble.callback.BleReadCallback;
 import com.clj.fastble.callback.BleScanCallback;
 import com.clj.fastble.callback.BleWriteCallback;
 import com.clj.fastble.data.BleDevice;
 import com.clj.fastble.exception.BleException;
 import com.clj.fastble.scan.BleScanRuleConfig;
+import com.example.testpoc.utils.Device;
 import com.example.testpoc.utils.enums.BleConnectionStatus;
 import com.example.testpoc.utils.enums.BleFeedbacks;
 import com.example.testpoc.utils.enums.BleUUIDS;
-import com.example.testpoc.utils.Device;
 import com.orhanobut.logger.Logger;
 
 import java.nio.charset.StandardCharsets;
@@ -197,7 +198,90 @@ public class BLE {
                 isWriteSuccess.complete(true);
             }
         });
-
     }
+
+    /**
+     * Method to connect with the hear rate sensor
+     *
+     * @param macAddress                          Mac-Address of the sensor
+     * @param heartRateDevice
+     * @param heartRateSensorConnectivity         {@link MutableLiveData<String>} To handle connectivity status of sensor
+     * @param heartRateDeviceConnectivityMessages
+     */
+    public void connectHeartRateSensor(String macAddress, MutableLiveData<BleDevice> heartRateDevice, MutableLiveData<Boolean> heartRateSensorConnectivity, MutableLiveData<String> heartRateDeviceConnectivityMessages) {
+        bleManager.connect(macAddress, new BleGattCallback() {
+            @Override
+            public void onStartConnect() {
+                Logger.d("Agnesh | BLE | Heart rate sensor | Starting connection");
+                heartRateDeviceConnectivityMessages.postValue("Attempting connection with the heart rate sensor.This might take some time.Please wait...");
+            }
+
+            @Override
+            public void onConnectFail(BleDevice bleDevice, BleException exception) {
+                Logger.e("Agnesh | BLE | Heart rate sensor | Connection attempt failed " + exception.getDescription());
+                heartRateSensorConnectivity.postValue(false);
+                heartRateDeviceConnectivityMessages.postValue("Connection with the heart rate sensor failed");
+            }
+
+            @Override
+            public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
+                Logger.d("Agnesh | BLE | Heart rate sensor | Connection success");
+                heartRateSensorConnectivity.postValue(true);
+                heartRateDevice.postValue(bleDevice);
+                heartRateDeviceConnectivityMessages.postValue("Connected with the heart rate sensor successfully");
+            }
+
+            @Override
+            public void onDisConnected(boolean isActiveDisConnected, BleDevice device, BluetoothGatt gatt, int status) {
+                Logger.d("Agnesh | BLE | Heart rate sensor | ${device?.name} Disconnected");
+                heartRateSensorConnectivity.postValue(false);
+                heartRateDeviceConnectivityMessages.postValue("Heart rate sensor got disconnected");
+            }
+        });
+    }
+
+    /**
+     * Method to start notification of hear rate service
+     *
+     * @param device                              {@link Device} To use for notify method
+     * @param heartRate                           {@link MutableLiveData<String>} Holds the latest received BPM value
+     * @param heartRateDeviceConnectivityMessages
+     */
+    public void startNotifyingHeartRate(BleDevice device, MutableLiveData<String> heartRate, MutableLiveData<String> heartRateDeviceConnectivityMessages) {
+        bleManager.notify(device, BleUUIDS.HEART_RATE_UUID.getUuid(), BleUUIDS.HEART_RATE_MEASUREMENT.getUuid(), new BleNotifyCallback() {
+            @Override
+            public void onNotifySuccess() {
+                Logger.d("Agnesh | BLE | Heart rate sensor | Notify success");
+                heartRateDeviceConnectivityMessages.postValue("Successfully started monitoring heart rate");
+            }
+
+            @Override
+            public void onNotifyFailure(BleException exception) {
+                Logger.d("Agnesh | BLE | Heart rate sensor | Notify failed " + exception.getDescription());
+                heartRateDeviceConnectivityMessages.postValue("Some error occurred");
+            }
+
+            @Override
+            public void onCharacteristicChanged(byte[] data) {
+                String bpm = String.valueOf(data[1]);
+                Logger.w("Agnesh | BLE | Heart rate sensor | Value changed: " + bpm + " Bpm");
+                heartRate.postValue(bpm);
+            }
+        });
+    }
+
+    /**
+     * Method to stop notification of hear rate service
+     *
+     * @param device                              {@link Device} To use for stopNotify method
+     * @param heartRateDeviceConnectivityMessages
+     */
+    public void stopNotifyingHeartRate(BleDevice device, MutableLiveData<String> heartRateDeviceConnectivityMessages) {
+        bleManager.stopNotify(device, BleUUIDS.HEART_RATE_UUID.getUuid(), BleUUIDS.HEART_RATE_MEASUREMENT.getUuid());
+        Logger.w("Agnesh | BLE | Heart rate sensor | Stopped notifying");
+        heartRateDeviceConnectivityMessages.postValue("Stopped monitoring heart rate");
+        bleManager.removeNotifyCallback(device, BleUUIDS.HEART_RATE_UUID.getUuid());
+    }
+
 
 }

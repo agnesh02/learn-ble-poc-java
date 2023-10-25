@@ -4,6 +4,12 @@
         android:id="@+id/menu_ble"
         android:icon="@drawable/ble_icon"
         android:title="BLE" />
+
+    <item
+        android:id="@+id/menu_heart_rate"
+        android:icon="@drawable/heart_monitor"
+        android:title="Heart rate" />
+
     <item
         android:id="@+id/menu_counter"
         android:icon="@drawable/counter"

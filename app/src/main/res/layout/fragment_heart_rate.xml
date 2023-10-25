@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".views.fragments.HeartRateFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <Button
+            android:id="@+id/btn_connect_with_heart_rate_sensor"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#0055FF"
+            android:text="Connect heart rate sensor"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="VisualLintButtonSize" />
+
+
+        <TextView
+            android:id="@+id/tv_status_heart_rate_sensor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="236dp"
+            android:fontFamily="sans-serif-condensed"
+            android:text="0 BPm"
+            android:textColor="#000000"
+            android:textSize="48sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btn_connect_with_heart_rate_sensor" />
+
+        <Button
+            android:id="@+id/btn_disconnect_with_heart_rate_sensor"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#FF0000"
+            android:foregroundTint="#FF0000"
+            android:text="Disconnect"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:strokeColor="#FF0E0E" />
+
+        <Button
+            android:id="@+id/btn_start_monitoring_heart_rate"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="168dp"
+            android:text="Start Monitoring"
+            android:textColor="#2E7D32"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_status_heart_rate_sensor"
+            app:strokeColor="#0A9800" />
+
+        <Button
+            android:id="@+id/btn_stop_monitoring_heart_rate"
+            style="@style/Widget.Material3.Button.IconButton.Outlined"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="Stop Monitoring"
+            android:textColor="#FF2B2B"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@+id/btn_start_monitoring_heart_rate"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/btn_start_monitoring_heart_rate"
+            app:strokeColor="#FF0000" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

@@ -59,14 +59,14 @@
             android:id="@+id/btn_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="64dp"
+            android:layout_marginTop="24dp"
             android:elevation="10dp"
             android:shadowColor="#000000"
             android:text="Login"
-            app:layout_constraintEnd_toEndOf="@+id/et_password_parent"
-            app:layout_constraintHorizontal_bias="0.493"
-            app:layout_constraintStart_toStartOf="@+id/et_password_parent"
-            app:layout_constraintTop_toBottomOf="@+id/et_password_parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/checkbox_remember_me" />
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -79,6 +79,16 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <CheckBox
+            android:id="@+id/checkbox_remember_me"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Remember me"
+            app:layout_constraintEnd_toEndOf="@+id/et_password_parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/et_password_parent"
+            app:layout_constraintTop_toBottomOf="@+id/et_password_parent" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

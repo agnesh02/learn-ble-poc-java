@@ -29,7 +29,6 @@ public class OthersFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         binding = FragmentOthersBinding.inflate(getLayoutInflater());
-
         // Navigating to activity with the data entered
         binding.btnNavToSample.setOnClickListener(view -> {
             String dataToBePassed = String.valueOf(binding.etPassData.getText());

@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.LocationManager;
 
 import androidx.annotation.NonNull;
@@ -13,9 +15,9 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.clj.fastble.data.BleDevice;
 import com.example.testpoc.models.BLE;
+import com.example.testpoc.utils.Device;
 import com.example.testpoc.utils.enums.BleConnectionStatus;
 import com.example.testpoc.utils.enums.BleFeedbacks;
-import com.example.testpoc.utils.Device;
 import com.orhanobut.logger.Logger;
 import com.permissionx.guolindev.PermissionX;
 
@@ -49,6 +51,26 @@ public class HomeActivityViewModel extends AndroidViewModel {
      * Live data which holds the feedback messages of BLE actions. This can hold errors as well as success
      */
     public MutableLiveData<String> bleFeedbackMessage = new MutableLiveData<>("");
+
+    /**
+     * Live data which holds the feedback messages of BLE actions. This can hold errors as well as success
+     */
+    public MutableLiveData<Boolean> heartRateSensorConnectivity = new MutableLiveData<>(false);
+
+    /**
+     * Live data which holds the feedback messages of BLE actions. This can hold errors as well as success
+     */
+    public MutableLiveData<String> heartRate = new MutableLiveData<>("0");
+
+    /**
+     * Live data which holds the heart rate sensor device details
+     */
+    public MutableLiveData<BleDevice> heartRateDevice = new MutableLiveData<>();
+
+    /**
+     * Live data which holds the connectivity status messages of the heart rate sensor
+     */
+    public MutableLiveData<String> heartRateDeviceConnectivityMessages = new MutableLiveData<>();
 
     /**
      * Method to increment the counter value and update it
@@ -195,6 +217,60 @@ public class HomeActivityViewModel extends AndroidViewModel {
      */
     public void writeData(Device device, String newDeviceName) {
         bleObj.writeDeviceName(device, newDeviceName, bleFeedbackMessage);
+    }
+
+    /**
+     * Method to connect with the heart rate device
+     *
+     * @param macAddress Mac-Address of the sensor
+     */
+    public void connectHeartRateSensor(String macAddress) {
+        bleObj.connectHeartRateSensor(macAddress, heartRateDevice, heartRateSensorConnectivity, heartRateDeviceConnectivityMessages);
+    }
+
+    /**
+     * Method to start notify / start monitoring the heart rate
+     */
+    public void startMonitoringHeartRate() {
+        bleObj.startNotifyingHeartRate(heartRateDevice.getValue(), heartRate, heartRateDeviceConnectivityMessages);
+    }
+
+    /**
+     * Method to stop notify / stop monitoring the heart rate
+     */
+    public void stopMonitoringHeartRate() {
+        bleObj.stopNotifyingHeartRate(heartRateDevice.getValue(), heartRateDeviceConnectivityMessages);
+    }
+
+    /**
+     * Method to connect with the heart rate device
+     */
+    public void disconnectHeartRateSensor() {
+        bleObj.bleManager.disconnect(heartRateDevice.getValue());
+    }
+
+    public SQLiteDatabase initializeDatabase() {
+        SQLiteDatabase sqLiteDatabase = this.getApplication().openOrCreateDatabase("HEART_RATE_DATA", Context.MODE_PRIVATE, null);
+        sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS heart_rates (timestamp VARCHAR, heart_rate VARCHAR)");
+        return sqLiteDatabase;
+    }
+
+    public void insertHeartRateRecord(SQLiteDatabase database, String timestamp, String heartRate) {
+        String query = String.format("INSERT INTO heart_rates (timestamp, heart_rate) VALUES ('%s', '%s')", timestamp, heartRate);
+        database.execSQL(query);
+    }
+
+    public void getHeartRateRecords(SQLiteDatabase database){
+        Cursor cursor = database.rawQuery("SELECT * FROM heart_rates", null);
+        int timestampIndex = cursor.getColumnIndex("timestamp");
+        int heartRateIndex = cursor.getColumnIndex("heart_rate");
+
+        cursor.moveToFirst();
+
+        while (!cursor.isAfterLast()){
+            Logger.i("Timestamp: "+cursor.getString(timestampIndex)+" | "+"Heart Rate: "+cursor.getString(heartRateIndex));
+            cursor.moveToNext();
+        }
     }
 
 }
