@@ -5,16 +5,21 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.testpoc.R;
 import com.example.testpoc.databinding.FragmentHeartRateBinding;
 import com.example.testpoc.models.Common;
 import com.example.testpoc.viewmodels.HomeActivityViewModel;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class HeartRateFragment extends Fragment {
@@ -83,13 +88,36 @@ public class HeartRateFragment extends Fragment {
             viewModel.stopMonitoringHeartRate();
             binding.btnStartMonitoringHeartRate.setVisibility(View.VISIBLE);
             binding.btnStopMonitoringHeartRate.setVisibility(View.INVISIBLE);
-            viewModel.getHeartRateRecords(database);
         });
 
         binding.btnDisconnectWithHeartRateSensor.setOnClickListener(view -> {
             viewModel.disconnectHeartRateSensor();
         });
 
+        ArrayList<String> arrayList = new ArrayList<>();
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, arrayList);
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getContext())
+                .setTitle("Heart Rate Logs")
+                .setMessage("Please find the stored logs below")
+                .setNegativeButton("Close", ((dialogInterface, i) -> {
+                    dialogInterface.dismiss();
+                }));
+
+        LayoutInflater layoutInflater = LayoutInflater.from(getContext());
+        View dialogView = layoutInflater.inflate(R.layout.custom_alert, null);
+
+        ListView listView = dialogView.findViewById(R.id.list_view_heart_rate_logs);
+        listView.setAdapter(arrayAdapter);
+
+        dialog.setView(dialogView);
+
+        binding.tvShowHeartRateLogs.setOnClickListener(view -> {
+            arrayList.clear();
+            arrayList.addAll(viewModel.getHeartRateRecords(database));
+            arrayAdapter.notifyDataSetChanged();
+            dialog.create().show();
+        });
 
         return binding.getRoot();
     }

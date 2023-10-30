@@ -74,6 +74,10 @@ public class OthersFragment extends Fragment {
             }
         });
 
+        binding.btnSleep.setOnClickListener(view -> {
+            Common.getInstance().showSnackMessage(binding.getRoot(), "Sleep attempt", true);
+        });
+
         return binding.getRoot();
     }
 }

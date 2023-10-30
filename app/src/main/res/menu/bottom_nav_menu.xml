@@ -19,5 +19,10 @@
         android:icon="@drawable/secondary_screen"
         android:title="Others" />
 
+    <item
+        android:id="@+id/menu_network"
+        android:icon="@drawable/network"
+        android:title="Network" />
+
 
 </menu>

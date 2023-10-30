@@ -21,6 +21,7 @@ import com.example.testpoc.models.Common;
 import com.example.testpoc.views.fragments.BleFragment;
 import com.example.testpoc.views.fragments.CounterFragment;
 import com.example.testpoc.views.fragments.HeartRateFragment;
+import com.example.testpoc.views.fragments.NetworkFragment;
 import com.example.testpoc.views.fragments.OthersFragment;
 
 public class HomeActivity extends AppCompatActivity {
@@ -68,6 +69,10 @@ public class HomeActivity extends AppCompatActivity {
             } else if (item.getItemId() == R.id.menu_others) {
                 getSupportActionBar().setTitle("Other Controls");
                 changeScreen(new OthersFragment());
+                return true;
+            } else if (item.getItemId() == R.id.menu_network) {
+                getSupportActionBar().setTitle("Network");
+                changeScreen(new NetworkFragment());
                 return true;
             }
             return true;

@@ -7,6 +7,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.LocationManager;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
@@ -15,14 +17,22 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.clj.fastble.data.BleDevice;
 import com.example.testpoc.models.BLE;
+import com.example.testpoc.models.NetworkApi;
 import com.example.testpoc.utils.Device;
+import com.example.testpoc.utils.User;
 import com.example.testpoc.utils.enums.BleConnectionStatus;
 import com.example.testpoc.utils.enums.BleFeedbacks;
 import com.orhanobut.logger.Logger;
 import com.permissionx.guolindev.PermissionX;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class HomeActivityViewModel extends AndroidViewModel {
 
@@ -71,6 +81,16 @@ public class HomeActivityViewModel extends AndroidViewModel {
      * Live data which holds the connectivity status messages of the heart rate sensor
      */
     public MutableLiveData<String> heartRateDeviceConnectivityMessages = new MutableLiveData<>();
+
+    /**
+     * Live data which holds the list of users fetched upon api request
+     */
+    public MutableLiveData<ArrayList<User>> listOfUsers = new MutableLiveData<>();
+
+    /**
+     * Live data which holds the status when an API request is made
+     */
+    public MutableLiveData<String> apiCallStatus = new MutableLiveData<>();
 
     /**
      * Method to increment the counter value and update it
@@ -260,16 +280,55 @@ public class HomeActivityViewModel extends AndroidViewModel {
         database.execSQL(query);
     }
 
-    public void getHeartRateRecords(SQLiteDatabase database){
+    public ArrayList<String> getHeartRateRecords(SQLiteDatabase database) {
+
+        ArrayList<String> heartRateLogs = new ArrayList<>();
+
         Cursor cursor = database.rawQuery("SELECT * FROM heart_rates", null);
         int timestampIndex = cursor.getColumnIndex("timestamp");
         int heartRateIndex = cursor.getColumnIndex("heart_rate");
 
         cursor.moveToFirst();
 
-        while (!cursor.isAfterLast()){
-            Logger.i("Timestamp: "+cursor.getString(timestampIndex)+" | "+"Heart Rate: "+cursor.getString(heartRateIndex));
+        while (!cursor.isAfterLast()) {
+            String log = "Timestamp: " + cursor.getString(timestampIndex) + " | " + "Heart Rate: " + cursor.getString(heartRateIndex);
+            Logger.i(log);
+            heartRateLogs.add(log);
             cursor.moveToNext();
+        }
+
+        return heartRateLogs;
+    }
+
+    /**
+     * Method to make API request to get a list of users
+     */
+    public void fetchUserDataFromNetwork() {
+        apiCallStatus.postValue("Fetching user details..");
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://jsonplaceholder.typicode.com")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        NetworkApi api = retrofit.create(NetworkApi.class);
+        Call<List<User>> call = api.getData();
+
+        try {
+            Response<List<User>> response = call.execute();
+            if (response.isSuccessful()) {
+                apiCallStatus.postValue("Fetched users successfully");
+                List<User> data = response.body();
+                listOfUsers.postValue((ArrayList<User>) data);
+                for (User item : data) {
+                    Logger.i(item.getName());
+                }
+            } else {
+                apiCallStatus.postValue("Fetch request failed");
+                Logger.e("Agnesh | Network Fragment | HomeActivityViewModel : Fetch failed ");
+            }
+        } catch (IOException e) {
+            apiCallStatus.postValue(e.getMessage());
+            Logger.e("Agnesh | Network Fragment | HomeActivityViewModel : Error "+e.getMessage());
         }
     }
 
