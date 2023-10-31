@@ -29,14 +29,32 @@
             android:id="@+id/tv_status_heart_rate_sensor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="236dp"
+            android:layout_marginTop="28dp"
             android:fontFamily="sans-serif-condensed"
             android:text="0 BPm"
             android:textColor="#000000"
             android:textSize="48sp"
+            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_connect_with_heart_rate_sensor" />
+
+        <com.example.testpoc.views.SpeedometerLite
+            android:id="@+id/heart_rate_meter"
+            android:layout_width="0dp"
+            android:layout_height="246dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="36dp"
+            android:layout_marginEnd="50dp"
+            app:borderColor="#402c47"
+            app:borderSize="8dp"
+            app:fillColor="#d83a78"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_status_heart_rate_sensor"
+            app:maxSpeed="100"
+            app:textColor="#070000"
+            app:textGap="20dp" />
 
         <Button
             android:id="@+id/btn_disconnect_with_heart_rate_sensor"
@@ -59,12 +77,12 @@
             android:layout_width="160dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="168dp"
+            android:layout_marginBottom="36dp"
             android:text="Start Monitoring"
             android:textColor="#2E7D32"
             android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/tv_show_heart_rate_logs"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_status_heart_rate_sensor"
             app:strokeColor="#0A9800" />
 
         <Button
@@ -83,13 +101,16 @@
 
         <TextView
             android:id="@+id/tv_show_heart_rate_logs"
+            style="textvie"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Show logs"
+            android:layout_marginBottom="24dp"
+            android:text="SHOW LOGGED RECORDS"
+            android:textColor="#4479FF"
+            app:layout_constraintBottom_toTopOf="@+id/btn_disconnect_with_heart_rate_sensor"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btn_start_monitoring_heart_rate" />
+            app:layout_constraintHorizontal_bias="0.501"
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

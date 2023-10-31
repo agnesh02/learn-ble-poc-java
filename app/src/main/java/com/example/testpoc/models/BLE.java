@@ -213,7 +213,7 @@ public class BLE {
             @Override
             public void onStartConnect() {
                 Logger.d("Agnesh | BLE | Heart rate sensor | Starting connection");
-                heartRateDeviceConnectivityMessages.postValue("Attempting connection with the heart rate sensor.This might take some time.Please wait...");
+                heartRateDeviceConnectivityMessages.postValue("Attempting connection with the heart rate sensor.This might take some time. Please wait...");
             }
 
             @Override

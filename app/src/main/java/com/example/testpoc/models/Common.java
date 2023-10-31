@@ -60,6 +60,7 @@ public class Common {
                 layoutParams.bottomMargin = 50;
             }
             snackBarView.setLayoutParams(layoutParams);
+            snackBar.setTextMaxLines(4);
 
             snackBar.setAction("Dismiss", new View.OnClickListener() {
                 @Override

@@ -7,8 +7,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.LocationManager;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
@@ -269,17 +267,35 @@ public class HomeActivityViewModel extends AndroidViewModel {
         bleObj.bleManager.disconnect(heartRateDevice.getValue());
     }
 
+    /**
+     * Method to initialize / connect the database
+     *
+     * @return {@link SQLiteDatabase} Database instance
+     */
     public SQLiteDatabase initializeDatabase() {
         SQLiteDatabase sqLiteDatabase = this.getApplication().openOrCreateDatabase("HEART_RATE_DATA", Context.MODE_PRIVATE, null);
         sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS heart_rates (timestamp VARCHAR, heart_rate VARCHAR)");
         return sqLiteDatabase;
     }
 
+    /**
+     * Method to log heart rate record into database
+     *
+     * @param database  {@link SQLiteDatabase} Database instance
+     * @param timestamp {@link String} Timestamp of the reading
+     * @param heartRate {@link String} Heart rate value
+     */
     public void insertHeartRateRecord(SQLiteDatabase database, String timestamp, String heartRate) {
         String query = String.format("INSERT INTO heart_rates (timestamp, heart_rate) VALUES ('%s', '%s')", timestamp, heartRate);
         database.execSQL(query);
     }
 
+    /**
+     * Method to get the retrieve heart rate records from the database
+     *
+     * @param database {@link SQLiteDatabase} Database instance
+     * @return {@link ArrayList<String>} Heart rate records
+     */
     public ArrayList<String> getHeartRateRecords(SQLiteDatabase database) {
 
         ArrayList<String> heartRateLogs = new ArrayList<>();
@@ -291,13 +307,23 @@ public class HomeActivityViewModel extends AndroidViewModel {
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
-            String log = "Timestamp: " + cursor.getString(timestampIndex) + " | " + "Heart Rate: " + cursor.getString(heartRateIndex);
+            String log = "Timestamp: " + cursor.getString(timestampIndex) + " | \n" + "Heart Rate: " + cursor.getString(heartRateIndex);
             Logger.i(log);
             heartRateLogs.add(log);
             cursor.moveToNext();
         }
 
         return heartRateLogs;
+    }
+
+    /**
+     * Method to clear all the records inside the database
+     *
+     * @param database {@link SQLiteDatabase} Database instance
+     */
+    public void deleteAllRecords(SQLiteDatabase database) {
+        String query = String.format("DELETE FROM heart_rates");
+        database.execSQL(query);
     }
 
     /**
@@ -320,7 +346,7 @@ public class HomeActivityViewModel extends AndroidViewModel {
                 List<User> data = response.body();
                 listOfUsers.postValue((ArrayList<User>) data);
                 for (User item : data) {
-                    Logger.i(item.getName());
+                    Logger.i("Agnesh | Network Fragment | HomeActivityViewModel : User found -> " + item.getName());
                 }
             } else {
                 apiCallStatus.postValue("Fetch request failed");
@@ -328,7 +354,7 @@ public class HomeActivityViewModel extends AndroidViewModel {
             }
         } catch (IOException e) {
             apiCallStatus.postValue(e.getMessage());
-            Logger.e("Agnesh | Network Fragment | HomeActivityViewModel : Error "+e.getMessage());
+            Logger.e("Agnesh | Network Fragment | HomeActivityViewModel : Error " + e.getMessage());
         }
     }
 

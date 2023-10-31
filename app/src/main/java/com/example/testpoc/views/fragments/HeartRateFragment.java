@@ -1,6 +1,7 @@
 package com.example.testpoc.views.fragments;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +30,6 @@ public class HeartRateFragment extends Fragment {
     final static String HEART_RATE_SENSOR_MAC = "F8:7E:39:61:16:31";
     SQLiteDatabase database;
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentHeartRateBinding.inflate(getLayoutInflater());
@@ -54,6 +54,9 @@ public class HeartRateFragment extends Fragment {
             }
         });
 
+        binding.heartRateMeter.setTextColor(Color.parseColor("#000000"));
+        binding.heartRateMeter.setMaxSpeed(200);
+
         viewModel.heartRate.observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String reading) {
@@ -61,8 +64,10 @@ public class HeartRateFragment extends Fragment {
                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 Date date = new Date();
                 String formattedDate = formatter.format(date);
-                binding.tvStatusHeartRateSensor.setText(heartRate);
-                viewModel.insertHeartRateRecord(database, formattedDate, heartRate);
+                binding.heartRateMeter.setSpeed(Integer.parseInt(reading), 1000L, null);
+                if (!reading.equals("0")) {
+                    viewModel.insertHeartRateRecord(database, formattedDate, heartRate);
+                }
             }
         });
 
@@ -98,8 +103,13 @@ public class HeartRateFragment extends Fragment {
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, arrayList);
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(getContext())
-                .setTitle("Heart Rate Logs")
+                .setTitle("Heart Rate Records")
                 .setMessage("Please find the stored logs below")
+                .setPositiveButton("Clear all records", ((dialogInterface, i) -> {
+                    viewModel.deleteAllRecords(database);
+                    Common.getInstance().showSnackMessage(binding.getRoot(), "Cleared all records !!", true);
+                    dialogInterface.dismiss();
+                }))
                 .setNegativeButton("Close", ((dialogInterface, i) -> {
                     dialogInterface.dismiss();
                 }));
@@ -113,8 +123,12 @@ public class HeartRateFragment extends Fragment {
         dialog.setView(dialogView);
 
         binding.tvShowHeartRateLogs.setOnClickListener(view -> {
+            ArrayList<String> data = viewModel.getHeartRateRecords(database);
             arrayList.clear();
-            arrayList.addAll(viewModel.getHeartRateRecords(database));
+            if (data.size() == 0) {
+                data.add("No records available");
+            }
+            arrayList.addAll(data);
             arrayAdapter.notifyDataSetChanged();
             dialog.create().show();
         });

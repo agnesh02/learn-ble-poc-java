@@ -75,7 +75,6 @@ public class BleFragment extends Fragment {
             adapter.notifyDataSetChanged();
         });
 
-
         return binding.getRoot();
     }
 }
